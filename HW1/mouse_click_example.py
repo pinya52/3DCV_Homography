@@ -9,18 +9,20 @@ def on_mouse(event, x, y, flags, param):
     if event == cv.EVENT_LBUTTONDOWN:
         param[0].append([x, y])  
 
+        
 
-if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        print('[USAGE] python3 mouse_click_example.py [IMAGE PATH]')
-        sys.exit(1)
 
-    img = cv.imread(sys.argv[1])
+def main(img):
+    # if len(sys.argv) < 2:
+    #     print('[USAGE] python3 mouse_click_example.py [IMAGE PATH]')
+    #     sys.exit(1)
+
+    # img = cv.imread(sys.argv[1])
 
     points_add= []
     cv.namedWindow(WINDOW_NAME)
     cv.setMouseCallback(WINDOW_NAME, on_mouse, [points_add])
-    while True:
+    while len(points_add) < 4:
         img_ = img.copy()
         for i, p in enumerate(points_add):
             # draw points on img_
@@ -31,7 +33,8 @@ if __name__ == '__main__':
         if key == 27: break # exist when pressing ESC
 
     cv.destroyAllWindows()
-    
     print('{} Points added'.format(len(points_add)))
+
+    return points_add
 
 

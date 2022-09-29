@@ -5,18 +5,20 @@ import math
 from tqdm import tqdm
 from copy import copy
 from function import homography_estimation, reprojection
-
+from  mouse_click_example import main
 if __name__ == '__main__':
     # read
     img_bef = cv.imread(sys.argv[1])
-    cv.imshow('Original Image', img_bef)
-    cv.waitKey(0)
+    # cv.imshow('Original Image', img_bef)
+    # cv.waitKey(0)
 
     corners = [[169, 467],
                 [673, 308],
                 [427, 1206],
                 [1038, 935]]
 
+    corners = main(img_bef)
+    print(corners)
 
     img_y,img_x = img_bef.shape[:2]
 
