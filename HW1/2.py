@@ -12,10 +12,10 @@ if __name__ == '__main__':
     # cv.imshow('Original Image', img_bef)
     # cv.waitKey(0)
 
-    corners = [[169, 467],
-                [673, 308],
-                [427, 1206],
-                [1038, 935]]
+    # corners = [[169, 467],
+    #             [673, 308],
+    #             [427, 1206],
+    #             [1038, 935]]
 
     corners = main(img_bef)
     print(corners)
