@@ -26,7 +26,7 @@ def get_sift_correspondences(img1, img2, k, good_rate):
 
     good_matches = sorted(good_matches, key=lambda x: x.distance)
     # print(good_matches[0].distance, good_matches[1].distance)
-    good_matches_topk = good_matches[:k]
+    good_matches_topk = good_matches[3:k+3]
     points1 = np.array([kp1[m.queryIdx].pt for m in good_matches_topk])
     points2 = np.array([kp2[m.trainIdx].pt for m in good_matches_topk])
     

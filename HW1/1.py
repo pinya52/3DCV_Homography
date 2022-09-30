@@ -128,57 +128,44 @@ from function import *
 #         error += np.sqrt(dist)
 #     return error/n
 
-if __name__ == '__main__':
-    # read
-    print('Reading img1 and img2')
-    img1 = cv.imread(sys.argv[1])
-    img2 = cv.imread(sys.argv[2])
-    print('Reading groundtruth')
-    gt_correspondences = np.load(sys.argv[3])
-    k = int(sys.argv[4])
-    good_rate = float(sys.argv[5])
-    
-    print('Getting SIFT correspondences of img1 and img2 \n')
+def main(img1, img2, gt_correspondences, good_rate):
+    # print('Getting SIFT correspondences of img1 and img2 \n')
     points1, points2 = get_sift_correspondences(img1, img2, k, good_rate)
-
-    for i in range(points1.shape[0]):
-        print(points1[i], points2[i])
 
 
     # DLT
-    print('Start DLT')
-    print('Estimating homography')
+    # print('Start DLT')
+    # print('Estimating homography')
     H = homography_estimation(points1, points2)
     M, mask = cv.findHomography(points1, points2)
 
 
-    print('Reprojecting')
+    # print('Reprojecting')
     pt_hat = reprojection(gt_correspondences[0], H)
     pt_hat_cv = reprojection(gt_correspondences[0], M)
-    print('Calculating Error')
+    # print('Calculating Error')
     error = calculate_error(pt_hat, gt_correspondences[1])
     error_cv = calculate_error(pt_hat_cv, gt_correspondences[1])
 
 
     # Normalized DLT
-    print('Start Normalized DLT')
-    print('Normalizing')
+    # print('Start Normalized DLT')
+    # print('Normalizing')
     T, trans_p1 = normalized(points1)
     T_prime, trans_p2 = normalized(points2)
-    print('Estimating homography')
-    H_hat = homography_estimation(trans_p1, trans_p2)
-    H_norm = np.dot(np.dot(np.linalg.pinv(T_prime), H_hat), T)
-    M, mask = cv.findHomography(points1, points2)
-    print('opencv : \n', M)
 
-    print('Reprojecting')
+    # print('Estimating homography')
+    H_hat = homography_estimation(trans_p1, trans_p2)
+    H_norm = np.dot(np.linalg.inv(T_prime), np.dot(H_hat, T))
+    M, mask = cv.findHomography(points1, points2)
+
+    # print('Reprojecting')
     pt_hat_norm = reprojection(gt_correspondences[0], H_norm)
-    print('Calculating Error \n')
+    # print('Calculating Error \n')
     error_norm = calculate_error(pt_hat_norm, gt_correspondences[1])
 
     pt_hat_cv = reprojection(gt_correspondences[0], M)
     error_cv = calculate_error(pt_hat_cv, gt_correspondences[1])
-    print('OpenCV Error : ', error_cv)
 
     print('----------Result----------')
     print('Mine H : \n', H, '\n')
@@ -187,3 +174,71 @@ if __name__ == '__main__':
     print('Mine Error : ', error, '\n')
     print('OpenCV Error : ', error_cv, '\n')
     print('Mine Error after Normliazed DLT: ', error_norm)
+
+if __name__ == '__main__':
+    # read
+    print('Reading img1 and img2')
+    img1 = cv.imread(sys.argv[1])
+    img2 = cv.imread(sys.argv[2])
+    print('Reading groundtruth')
+    gt_correspondences = np.load(sys.argv[3])
+    # k = int(sys.argv[4])
+    good_rate = float(sys.argv[4])
+
+    ks = [4, 8, 20]
+    # ks = [4]
+
+    for k in ks:
+        print("Now running k : %d \n"%(k))
+        main(img1, img2, gt_correspondences, good_rate)
+        print("\n========================================================== \n")
+    
+    # print('Getting SIFT correspondences of img1 and img2 \n')
+    # points1, points2 = get_sift_correspondences(img1, img2, k, good_rate)
+
+    # for i in range(points1.shape[0]):
+    #     print(points1[i], points2[i])
+
+
+    # # DLT
+    # print('Start DLT')
+    # print('Estimating homography')
+    # H = homography_estimation(points1, points2)
+    # M, mask = cv.findHomography(points1, points2)
+
+
+    # print('Reprojecting')
+    # pt_hat = reprojection(gt_correspondences[0], H)
+    # pt_hat_cv = reprojection(gt_correspondences[0], M)
+    # print('Calculating Error')
+    # error = calculate_error(pt_hat, gt_correspondences[1])
+    # error_cv = calculate_error(pt_hat_cv, gt_correspondences[1])
+
+
+    # # Normalized DLT
+    # print('Start Normalized DLT')
+    # print('Normalizing')
+    # T, trans_p1 = normalized(points1)
+    # T_prime, trans_p2 = normalized(points2)
+    # print('Estimating homography')
+    # H_hat = homography_estimation(trans_p1, trans_p2)
+    # H_norm = np.dot(np.dot(np.linalg.pinv(T_prime), H_hat), T)
+    # M, mask = cv.findHomography(points1, points2)
+    # print('opencv : \n', M)
+
+    # print('Reprojecting')
+    # pt_hat_norm = reprojection(gt_correspondences[0], H_norm)
+    # print('Calculating Error \n')
+    # error_norm = calculate_error(pt_hat_norm, gt_correspondences[1])
+
+    # pt_hat_cv = reprojection(gt_correspondences[0], M)
+    # error_cv = calculate_error(pt_hat_cv, gt_correspondences[1])
+    # print('OpenCV Error : ', error_cv)
+
+    # print('----------Result----------')
+    # print('Mine H : \n', H, '\n')
+    # print('OpenCV H : \n', M, '\n')
+    # print('Mine H after Normliazed DLT: \n', H_norm, '\n')
+    # print('Mine Error : ', error, '\n')
+    # print('OpenCV Error : ', error_cv, '\n')
+    # print('Mine Error after Normliazed DLT: ', error_norm)
