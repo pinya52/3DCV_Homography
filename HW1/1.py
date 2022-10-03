@@ -128,10 +128,9 @@ from function import *
 #         error += np.sqrt(dist)
 #     return error/n
 
-def main(img1, img2, gt_correspondences, good_rate):
+def main(img1, img2, gt_correspondences, good_rate, img2_name):
     # print('Getting SIFT correspondences of img1 and img2 \n')
-    points1, points2 = get_sift_correspondences(img1, img2, k, good_rate)
-
+    points1, points2 = get_sift_correspondences(img1, img2, k, good_rate, img2_name)
 
     # DLT
     # print('Start DLT')
@@ -171,27 +170,35 @@ def main(img1, img2, gt_correspondences, good_rate):
     print('Mine H : \n', H, '\n')
     print('OpenCV H : \n', M, '\n')
     print('Mine H after Normliazed DLT: \n', H_norm, '\n')
-    print('Mine Error : ', error, '\n')
-    print('OpenCV Error : ', error_cv, '\n')
-    print('Mine Error after Normliazed DLT: ', error_norm)
+    # print('Mine Error : ', error, '\n')
+    # print('OpenCV Error : ', error_cv, '\n')
+    # print('Mine Error after Normliazed DLT: ', error_norm)
+    return [error, error_cv, error_norm]
 
 if __name__ == '__main__':
     # read
-    print('Reading img1 and img2')
-    img1 = cv.imread(sys.argv[1])
-    img2 = cv.imread(sys.argv[2])
-    print('Reading groundtruth')
-    gt_correspondences = np.load(sys.argv[3])
-    # k = int(sys.argv[4])
-    good_rate = float(sys.argv[4])
+    # print('Reading img1 and img2')
+    img1 = cv.imread('images/1-0.png')
+    img2_name = sys.argv[1]
+    img2 = cv.imread('images/1-%s.png'%(img2_name))
+    # print('Reading groundtruth')
+    gt_correspondences = np.load('groundtruth_correspondences/correspondence_0%s.npy'%(img2_name))
+    good_rate = 0.75
 
     ks = [4, 8, 20]
-    # ks = [4]
 
+    errors = []
     for k in ks:
         print("Now running k : %d \n"%(k))
-        main(img1, img2, gt_correspondences, good_rate)
+        error_k = main(img1, img2, gt_correspondences, good_rate, img2_name)
+        errors.append(error_k)
         print("\n========================================================== \n")
+    for i, k in enumerate(ks):
+        print("error for k : %d \n"%(k))
+        print('Mine Error : ', errors[i][0], '\n')
+        print('OpenCV Error : ', errors[i][1], '\n')
+        print('Mine Error after Normliazed DLT: ', errors[i][2], '\n\n')
+
     
     # print('Getting SIFT correspondences of img1 and img2 \n')
     # points1, points2 = get_sift_correspondences(img1, img2, k, good_rate)

@@ -3,7 +3,7 @@ import cv2 as cv
 import math
 from tqdm import tqdm
 
-def get_sift_correspondences(img1, img2, k, good_rate):
+def get_sift_correspondences(img1, img2, k, good_rate, img2_name):
     '''
     Input:
         img1: numpy array of the first image
@@ -26,12 +26,28 @@ def get_sift_correspondences(img1, img2, k, good_rate):
 
     good_matches = sorted(good_matches, key=lambda x: x.distance)
     # print(good_matches[0].distance, good_matches[1].distance)
-    good_matches_topk = good_matches[3:k+3]
+    # good_matches_topk = good_matches[3:k+3]
+    
+    if img2_name == '1':
+        if k == 4:
+            good_id = [3,4,5,6]
+        else:
+            good_id = [5,14,16,17,19,38,43,49,4,6,7,8,20,21,23,24,26,28,29,40]
+    else:
+        good_id = [16, 20, 36, 43, 24, 28, 31, 34, 7, 8, 11, 12, 17, 18, 19, 22, 27, 33, 35, 48]
+
+    good_matches_topk = []
+    for i in range(k):
+        good_matches_topk.append(good_matches[good_id[i]])
+
     points1 = np.array([kp1[m.queryIdx].pt for m in good_matches_topk])
     points2 = np.array([kp2[m.trainIdx].pt for m in good_matches_topk])
     
     img_draw_match = cv.drawMatches(img1, kp1, img2, kp2, good_matches_topk, None, flags=cv.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
     cv.imshow('match', img_draw_match)
+    img_name = 'match_%s_%d.png'%(img2_name, k)
+    print(img_name)
+    cv.imwrite(img_name, img_draw_match)
     cv.waitKey(0)
     return points1, points2
         
@@ -88,10 +104,7 @@ def homography_estimation(points1, points2):
     # h = vh[-1]
     # print('h : \n', h, '\n')
 
-    temp = []
-    for i in range(3):
-        temp.append([h[i*3], h[i*3+1], h[i*3+2]])
-    H = np.array(temp)
+    H = h.reshape(3,3)
     return H
 
 def reprojection(groundtruth, H):
@@ -122,5 +135,5 @@ def calculate_error(pt_hat, pt):
     for i in range(n):
         dist = (pt_hat[i] - pt[i])**2
         dist = np.sum(dist, axis=0)
-        error += np.sqrt(dist)
-    return error/n
+        error += dist
+    return np.sqrt(error)/n
