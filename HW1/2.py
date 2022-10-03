@@ -8,7 +8,7 @@ from function import homography_estimation, reprojection
 from  mouse_click_example import main
 if __name__ == '__main__':
     # read
-    img_bef = cv.imread(sys.argv[1])
+    img_bef = cv.imread('images/2-0.png')
     # cv.imshow('Original Image', img_bef)
     # cv.waitKey(0)
 
@@ -46,3 +46,4 @@ if __name__ == '__main__':
 
     cv.imshow('Warpped Image', img_warp)
     cv.waitKey(0)
+    cv.imwrite('Warpped_Image.png', img_warp)
